@@ -4,6 +4,7 @@ targetConfigs/
 
 # Dont track these files
 .ccsproject
+.ccsproject
 .cproject
 .project
 msp432p401r.cmd
