@@ -1,4 +1,13 @@
 # Don't track content of these folders
-ccsporjectsettings.c
 someOtherfoler/
+.settings/
+targetConfigs/
+
+# Dont track these files
+.ccsporject
+.cproject
+.project
+msp432p401r.cmd
+startup_msp432p401r_ccs.c
+system_msp432p401r.c
 
