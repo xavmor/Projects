@@ -1,6 +1,7 @@
 # Don't track content of these folders
 .settings/
 targetConfigs/
+Debug/
 
 # Dont track these files
 .ccsproject
