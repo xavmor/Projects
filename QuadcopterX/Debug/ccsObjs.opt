@@ -1,0 +1,1 @@
+"./main.obj" "./startup_msp432p401r_ccs.obj" "./system_msp432p401r.obj" "./library/EEPROM.obj" "./library/LowPassFilter.obj" "./library/MPU6500.obj" "./library/PID.obj" "./library/i2c_custome.obj" "../msp432p401r.cmd" -llibc.a 
