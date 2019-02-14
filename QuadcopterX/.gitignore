@@ -2,6 +2,7 @@
 .settings/
 targetConfigs/
 Debug/
+.launches/
 
 # Dont track these files
 .ccsproject
