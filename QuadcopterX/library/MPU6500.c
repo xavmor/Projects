@@ -17,12 +17,12 @@
 
 */
 
+#include <library/MPU6500.h>
 #include <stdint.h>
 #include <stdbool.h>
 
 #include "EEPROM.h"
 #include "driverlib/i2c.h"
-#include "MPU6500.h"
 #include "Time.h"
 
 //#include "inc/hw_memmap.h"
@@ -213,13 +213,21 @@ void initMPU6500(mpu6500_t *mpu6500) {
         while (1);
     }
 
-    i2cWrite(MPU6500_ADDRESS, MPU6500_PWR_MGMT_1, (1 << 7)); // Reset device, this resets all internal registers to their default values
-    delay(100);
-    while (i2cRead(MPU6500_ADDRESS, MPU6500_PWR_MGMT_1) & (1 << 7)) {
-        // Wait for the bit to clear
-    };
-    delay(100);
-    i2cWrite(MPU6500_ADDRESS, MPU6500_PWR_MGMT_1, (1 << 3) | (1 << 0)); // Disable sleep mode, disable temperature sensor and use PLL as clock reference
+    //i2cWrite(MPU6500_ADDRESS, MPU6500_PWR_MGMT_1, (1 << 7)); // Reset device, this resets all internal registers to their default values
+    i2cWriteData(MPU6500_ADDRESS, MPU6500_PWR_MGMT_1, (1 << 7), 1);
+    //delay(100);
+//    while (i2cRead(MPU6500_ADDRESS, MPU6500_PWR_MGMT_1) & (1 << 7)) {
+//        // Wait for the bit to clear
+//    };
+    do
+    {
+        i2cReadData(MPU6500_ADDRESS, MPU6500_PWR_MGMT_1, i2cBuffer, 1);   // Wait for the bit to clear
+
+    } while (i2cBuffer[0] & (1 << 7));
+
+    //delay(100);
+    //i2cWrite(MPU6500_ADDRESS, MPU6500_PWR_MGMT_1, (1 << 3) | (1 << 0)); // Disable sleep mode, disable temperature sensor and use PLL as clock reference
+    i2cWriteData(MPU6500_ADDRESS, MPU6500_PWR_MGMT_1, (1 << 3) | (1 << 0), 1);  // Disable sleep mode, disable temperature sensor and use PLL as clock reference
 
     i2cBuffer[0] = 0; // Set the sample rate to 1kHz - 1kHz/(1+0) = 1kHz
     i2cBuffer[1] = 0x03; // Disable FSYNC and set 41 Hz Gyro filtering, 1 KHz sampling
@@ -241,13 +249,15 @@ void initMPU6500(mpu6500_t *mpu6500) {
     i2cWriteData(MPU6500_ADDRESS, MPU6500_INT_PIN_CFG, i2cBuffer, 2); // Write to both registers at once
 
     // Set INT input pin
+    GPIO_setAsInputPin(GPIO_MPU_INT_BASE, GPIO_MPU_INT_PIN);
     //SysCtlPeripheralEnable(GPIO_MPU_INT_PERIPH); // Enable GPIO peripheral
     //SysCtlDelay(2); // Insert a few cycles after enabling the peripheral to allow the clock to be fully activated
     //GPIOPinTypeGPIOInput(GPIO_MPU_INT_BASE, GPIO_MPU_INT_PIN); // Set as input
 
-    delay(100); // Wait for sensor to stabilize
+    //delay(100); // Wait for sensor to stabilize
 
-    while (calibrateMPU6500Gyro()) { // Get gyro zero values
+    while (calibrateMPU6500Gyro()) // Get gyro zero values
+    {
         // Loop until calibration is successful
     }
 }

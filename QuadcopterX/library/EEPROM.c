@@ -23,9 +23,15 @@
 
 //#include "eeprom.h"
 #include "driverlib/sysctl.h"
+#include "driverlib/cs.h"
+#include "driverlib/flash.h"
+#include "driverlib/pcm.h"
 //#if UART_DEBUG
 //#include "utils/uartstdio.h" // Add "UART_BUFFERED" to preprocessor
 //#endif
+
+#define MEMORY_ADDRESS  0x0003F000
+
 
 static const uint32_t configVersion = 21; // Must be bumped every time config_t is changed
 config_t cfg;
@@ -33,7 +39,12 @@ config_t cfg;
 void initEEPROM(void)
 {
     //SysCtlPeripheralEnable(SYSCTL_PERIPH_EEPROM0); // Enable EEPROM peripheral
-    SysCtlDelay(2); // Insert a few cycles after enabling the peripheral to allow the clock to be fully activated
+    //SysCtlDelay(2); // Insert a few cycles after enabling the peripheral to allow the clock to be fully activated
+    MAP_PCM_setCoreVoltageLevel(PCM_VCORE1);
+    FlashCtl_setWaitState(FLASH_BANK0, 1);
+    FlashCtl_setWaitState(FLASH_BANK1, 1);
+    //MAP_CS_setDCOCenterdFrequency(CS_DCO_FREQUENCY_48);
+
 
     // Make sure config_t is a multiple of 4 - the compiler should pack structs to 4 bytes, but I added this check to be 100% sure
     if (sizeof(config_t) % 4 != 0)
@@ -41,26 +52,29 @@ void initEEPROM(void)
 //#if UART_DEBUG
 //        UARTprintf("Config size error: %u\n", sizeof(config_t));
 //#endif
-        buzzer(true);
+        //buzzer(true);
         while (1);
     }
 
     uint32_t rcode = EEPROMInit();
-    if (rcode) {
+
+    if (rcode)
+    {
 //#if UART_DEBUG
 //        UARTprintf("EEPROMInit error: %u\n", rcode);
 //#endif
-        buzzer(true);
+        //buzzer(true);
         while (1);
     }
 
-    uint32_t version;
-    EEPROMRead(&version, 0, sizeof(version));
-    if (version != configVersion) {
-        setDefaultConfig();
-        beepLongBuzzer();
-    } else
-        EEPROMRead((uint32_t*)&cfg, sizeof(configVersion), sizeof(config_t)); // Read config from EEPROM
+//    uint32_t version;
+//    //EEPROMRead(&version, 0, sizeof(version));
+//    if (version != configVersion)
+//    {
+//        setDefaultConfig();
+//        //beepLongBuzzer();
+//    } else
+//        EEPROMRead((uint32_t*)&cfg, sizeof(configVersion), sizeof(config_t)); // Read config from EEPROM
 }
 
 void setDefaultConfig(void)
@@ -108,22 +122,48 @@ void setDefaultConfig(void)
         cfg.magZero.data[axis] = 0;
     }
 
-    uint32_t rcode = EEPROMProgram((uint32_t*)&configVersion, 0, sizeof(configVersion)); // Write version number to EEPROM
-    if (rcode) {
-#if UART_DEBUG
-        UARTprintf("Error writing version number to EEPROM: %u\n", rcode);
-#endif
-        buzzer(true);
-    } else
-        updateConfig(); // Write values to EEPROM
+    //uint32_t rcode = EEPROMProgram((uint32_t*)&configVersion, 0, sizeof(configVersion)); // Write version number to EEPROM
+//    if (rcode)
+//    {
+////#if UART_DEBUG
+////        UARTprintf("Error writing version number to EEPROM: %u\n", rcode);
+////#endif
+//        //buzzer(true);
+//    } else
+//        updateConfig(); // Write values to EEPROM
 }
 
-void updateConfig(void) {
-    uint32_t rcode = EEPROMProgram((uint32_t*)&cfg, sizeof(configVersion), sizeof(config_t)); // Write config to EEPROM
-    if (rcode) {
-#if UART_DEBUG
-        UARTprintf("Error writing config to EEPROM: %u\n", rcode);
-#endif
-        buzzer(true);
-    }
+void updateConfig(void)
+{
+//    uint32_t rcode = EEPROMProgram((uint32_t*)&cfg, sizeof(configVersion), sizeof(config_t)); // Write config to EEPROM
+//
+//    if (rcode)
+//    {
+////#if UART_DEBUG
+////        UARTprintf("Error writing config to EEPROM: %u\n", rcode);
+////#endif
+//        //buzzer(true);
+//    }
+}
+
+
+// Verify memory integrity
+uint32_t EEPROMInit()
+{
+    bool status;
+    status = FlashCtl_verifyMemory((void*)MEMORY_ADDRESS, 4096, 0xA5);
+
+    if (status)
+        ;//FlashCtl_enableReadBuffering(FLASH_BANK1, FLASH_DATA_READ);
+
+    // TODO: Add a way to repair the memory if possible
+
+    // if successful then return false
+    return (uint32_t) !status;
+}
+
+
+uint32_t EEPROMRead(uint32_t *pui32Data, uint32_t ui32Address, uint32_t ui32Count)
+{
+    return 0;//FlashCtl_enableReadBuffering();
 }
