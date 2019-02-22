@@ -1,7 +1,6 @@
 #include "i2c_custome.h"
 #include "driverlib/gpio.h"
-#include "ti/devices/msp432p4xx/driverlib/i2c.h"
-
+//#include "ti/devices/msp432p4xx/driverlib/i2c.h"
 
 
 // Struct that we will use for I2C configuration
@@ -153,7 +152,7 @@ uint8_t I2CReadSingleByte(uint32_t moduleInstance, uint8_t regAddr)
  *      length ->   the # of bytes to read
  *
  *****************************************************************************/
-void I2CReadMultipleByte(uint32_t moduleInstance, uint8_t regAddr,
+bool I2CReadMultipleByte(uint32_t moduleInstance, uint8_t regAddr,
                          uint8_t * data, uint8_t length)
 {
     // Set to Transmit Mode
@@ -198,6 +197,9 @@ void I2CReadMultipleByte(uint32_t moduleInstance, uint8_t regAddr,
 
     // Grab the last byte of data
     data[i] = (EUSCI_B_CMSIS(moduleInstance)->RXBUF & EUSCI_B_RXBUF_RXBUF_MASK);
+
+    // False means succesful
+    return false;
 }
 
 
@@ -243,7 +245,7 @@ void I2CWriteSingalByte(uint32_t moduleInstance, uint8_t regAddr, uint8_t data)
  *      length ->   the # of bytes to read
  *
  *****************************************************************************/
-void I2CWriteMultipleByte(uint32_t moduleInstance, uint8_t regAddr,
+bool I2CWriteMultipleByte(uint32_t moduleInstance, uint8_t regAddr,
                           uint8_t * data, uint8_t length)
 {
     // Set to Transmit Mode
@@ -260,6 +262,8 @@ void I2CWriteMultipleByte(uint32_t moduleInstance, uint8_t regAddr,
 
     // Send last Byte of data and Stop Bit
     I2C_masterSendMultiByteFinish(moduleInstance, data[i]);
+
+    return false;
 }
 
 

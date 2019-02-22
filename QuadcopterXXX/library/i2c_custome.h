@@ -1,13 +1,18 @@
 #ifndef __i2c_custome_h__
 #define __i2c_custome_h__
 
+#include "driverlib/i2c.h"
 #include <stdint.h>
-//#include <stdbool.h>
+#include <stdbool.h>
+
+
+// Global Constants
+#define I2CModuleBase   EUSCI_B0_BASE
 
 uint8_t I2CReadSingleByte(uint32_t moduleInstance, uint8_t regAddr);
-void I2CReadMultipleByte(uint32_t moduleInstance, uint8_t regAddr, uint8_t * data, uint8_t length);
+bool I2CReadMultipleByte(uint32_t moduleInstance, uint8_t regAddr, uint8_t * data, uint8_t length);
 void I2CWriteSingalByte(uint32_t moduleInstance, uint8_t regAddr, uint8_t data);
-void I2CWriteMultipleByte(uint32_t moduleInstance, uint8_t regAddr, uint8_t *data, uint8_t length);
+bool I2CWriteMultipleByte(uint32_t moduleInstance, uint8_t regAddr, uint8_t *data, uint8_t length);
 
 
 /* Initializes I2C module

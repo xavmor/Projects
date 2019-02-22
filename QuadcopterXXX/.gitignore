@@ -3,6 +3,7 @@
 targetConfigs/
 Debug/
 .launches/
+MPlibrary/
 
 # Dont track these files
 .ccsproject
